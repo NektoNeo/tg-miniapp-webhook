@@ -61,9 +61,8 @@ NODE_ENV=development
 ### Set Telegram Webhook
 
 ```bash
-curl -X POST https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://your-domain.com/api/telegram/webhook"}'
+# From the app directory, export BOT_TOKEN, TELEGRAM_WEBHOOK_URL and TELEGRAM_WEBHOOK_SECRET.
+node scripts/register-webhook.mjs
 ```
 
 ## 🏃 Running
@@ -170,3 +169,5 @@ Issues and PRs are welcome!
 ---
 
 **Built with ❤️ using Next.js, Telegraf, and BullMQ**
+
+Before switching an existing deployment, generate a random webhook secret (for example 32 random bytes encoded as hex). Put it in the server secret store as `TELEGRAM_WEBHOOK_SECRET`. Set `TELEGRAM_WEBHOOK_URL` to the existing full HTTPS callback. Register the same secret with Telegram using the script while the old handler is still running, then deploy the new handler and check bot delivery. Keep the queue of pending updates.
