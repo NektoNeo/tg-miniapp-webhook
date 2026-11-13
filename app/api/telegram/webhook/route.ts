@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { Telegraf } from 'telegraf';
 import { Queue } from 'bullmq';
 import { NextRequest, NextResponse } from 'next/server';
@@ -138,6 +139,17 @@ bot.catch((err, ctx) => {
 
 // POST handler for Telegram webhook
 export async function POST(req: NextRequest) {
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (!secret || !/^[A-Za-z0-9_-]{1,256}$/.test(secret)) {
+    return NextResponse.json({ ok: false }, { status: 503 });
+  }
+
+  const expected = Buffer.from(secret);
+  const received = Buffer.from(req.headers.get('X-Telegram-Bot-Api-Secret-Token') ?? '');
+  if (received.length !== expected.length || !timingSafeEqual(received, expected)) {
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
 

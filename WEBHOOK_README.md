@@ -98,9 +98,8 @@ Dependencies added:
 Use Telegram API to set webhook URL:
 
 ```bash
-curl -X POST https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://your-domain.com/api/telegram/webhook"}'
+# From the app directory, export BOT_TOKEN, TELEGRAM_WEBHOOK_URL and TELEGRAM_WEBHOOK_SECRET.
+node scripts/register-webhook.mjs
 ```
 
 Or for local development with ngrok:
@@ -110,9 +109,8 @@ Or for local development with ngrok:
 ngrok http 3000
 
 # Set webhook
-curl -X POST https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://your-ngrok-url.ngrok.io/api/telegram/webhook"}'
+# From the app directory, export BOT_TOKEN, TELEGRAM_WEBHOOK_URL and TELEGRAM_WEBHOOK_SECRET.
+node scripts/register-webhook.mjs
 ```
 
 ## Running
@@ -206,9 +204,8 @@ Prevents duplicate scheduling if user interacts multiple times.
 ngrok http 3000
 
 # Update bot webhook
-curl -X POST https://api.telegram.org/bot<TOKEN>/setWebhook \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://abc123.ngrok.io/api/telegram/webhook"}'
+# From the app directory, export BOT_TOKEN, TELEGRAM_WEBHOOK_URL and TELEGRAM_WEBHOOK_SECRET.
+node scripts/register-webhook.mjs
 
 # Start services
 pnpm dev          # Terminal 1
@@ -397,3 +394,5 @@ app.use('/admin/queues', serverAdapter.getRouter());
 **Implementation Date:** 2025-11-01
 **Telegraf Version:** 4.16.3
 **BullMQ Version:** 5.63.0
+
+Before switching an existing deployment, generate a random webhook secret (for example 32 random bytes encoded as hex). Put it in the server secret store as `TELEGRAM_WEBHOOK_SECRET`. Set `TELEGRAM_WEBHOOK_URL` to the existing full HTTPS callback. Register the same secret with Telegram using the script while the old handler is still running, then deploy the new handler and check bot delivery. Keep the queue of pending updates.
